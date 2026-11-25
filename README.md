@@ -9,11 +9,10 @@ Click the screen to touch it, so auto selectors and menus work too.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
-![Electron](https://img.shields.io/badge/Electron-47848F?logo=electron&logoColor=white)
 ![Languages](https://img.shields.io/badge/runs-C%2B%2B%20%7C%20Python-2ea44f)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-### [▶ Open it in your browser](https://brinhan.github.io/Vex-Brain-Simulator/) &nbsp;·&nbsp; [⬇ Download the desktop app](https://github.com/BrinHan/Vex-Brain-Simulator/releases/latest)
+### [▶ Open it in your browser](https://brinhan.github.io/Vex-Brain-Simulator/)
 
 <img src="docs/media/hero.png" alt="VEX Brain Simulator: C++ code in the editor on the left, a robot dashboard drawn on the virtual V5 Brain on the right" width="100%">
 
@@ -33,7 +32,6 @@ Click the screen to touch it, so auto selectors and menus work too.
 - **Simulated SD card.** Insert or eject a fake card, add or drop files from disk, and let `Brain.SDcard` save and load them without hardware. `drawImageFromFile` draws BMPs from the card. Files are kept in your browser.
 - **Live animation.** `wait()` really waits and `while (true)` loops keep running without freezing the page. **Stop** always works.
 - **Competition testing.** Programs that use `Competition` get **Autonomous** and **Driver control** buttons.
-- **Web or desktop.** The same code runs in the browser and as an Electron desktop app.
 
 ## Demos
 
@@ -101,10 +99,6 @@ while True:
 
 **No install:** use the [web version](https://brinhan.github.io/Vex-Brain-Simulator/).
 
-**Desktop app:** download the installer for Windows, macOS or Linux from the
-[latest release](https://github.com/BrinHan/Vex-Brain-Simulator/releases/latest). The installers aren't code-signed,
-so Windows SmartScreen or macOS Gatekeeper may warn you the first time you open it.
-
 **From source:** you need [Node.js](https://nodejs.org/) 18 or newer.
 
 ```bash
@@ -119,8 +113,6 @@ Then open <http://localhost:5173>.
 | Command           | What it does                                       |
 | ----------------- | -------------------------------------------------- |
 | `npm run dev`     | Web app with hot reload at `http://localhost:5173` |
-| `npm run desktop` | Build, then open the Electron desktop app          |
-| `npm run dist`    | Make an installer for your OS in `release/`        |
 | `npm run build`   | Static site in `dist/` that can be hosted anywhere |
 | `npm test`        | Run the engine tests (Vitest)                      |
 
@@ -217,10 +209,9 @@ Every call is awaited, so `wait()` really waits, infinite loops don't freeze the
 ```
 src/lang/   cpp-lexer, cpp-parser, py-parser → ast → codegen → JS
 src/sim/    screen (Brain.Screen), controller, env (VEX globals), helpers (C++/Python semantics), runtime (run/stop/tasks)
-src/        main.ts (UI), controls.ts (keys, gamepad, Controls menu), share.ts (links), highlight.ts
-electron/   desktop app entry point
+src/        main.ts (UI), controls.ts (keys, gamepad, Controls menu), sdcard-ui.ts (card manager), share.ts (links), highlight.ts
 tests/      engine tests and real-world fixtures
-.github/    workflows: publish the web app to GitHub Pages, build installers for tagged releases
+.github/    workflow: publish the web app to GitHub Pages
 ```
 
 ## Known limits

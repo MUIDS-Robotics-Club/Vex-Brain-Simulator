@@ -2,7 +2,7 @@
 
 export interface Shared { code: string; lang: string; name?: string }
 
-/** The hosted web app; the desktop app (file://) shares links that open there. */
+/** The hosted web app, used to build links when the page is opened from a local file. */
 export const PUBLIC_URL = 'https://brinhan.github.io/Vex-Brain-Simulator/';
 
 const toB64Url = (bytes: Uint8Array): string => {

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-// base './' so the built site also loads from file:// inside Electron
+// relative base so the built site works from any host path (including GitHub Pages)
 export default defineConfig({
   base: './',
   build: { outDir: 'dist' },
