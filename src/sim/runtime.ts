@@ -4,6 +4,7 @@ import { createEnv } from './env';
 import { Ctx2D, BrainScreen } from './screen';
 import { HelperHost, StopSignal, createHelpers, scopeProxy, stub } from './helpers';
 import { ControllerInput, ControllerScreen } from './controller';
+import { SdCard } from './sdcard';
 
 export type RunState = 'idle' | 'running' | 'finished' | 'stopped' | 'error';
 export type LogKind = 'out' | 'err' | 'warn' | 'info';
@@ -40,6 +41,8 @@ export class Runtime implements HelperHost {
   /** Live controller input: the UI changes it, programs read it. It outlives runs, so a held key stays held. */
   readonly controller = new ControllerInput();
   readonly controllerScreen = new ControllerScreen();
+  /** The fake SD card outlives individual runs, so a program can save in one run and load in the next. */
+  readonly sdcard: SdCard;
   private disposers: (() => void)[] = [];
 
   private sleepers = new Set<{ t: ReturnType<typeof setTimeout>; rej: (e: Error) => void }>();
@@ -49,9 +52,20 @@ export class Runtime implements HelperHost {
   private flushOut: () => void = () => {};
   private lang: Lang = 'cpp';
 
-  constructor(ctx: Ctx2D) {
+  constructor(ctx: Ctx2D, sdcard: SdCard = new SdCard()) {
     this.screen = new BrainScreen(ctx);
     this.screen.spawn = (fn, args) => this.spawn(fn, args);
+    this.sdcard = sdcard;
+    this.screen.loadImage = async (name) => {
+      if (!this.sdcard.exists(name)) return undefined;
+      const bytes = this.sdcard.read(name);
+      if (!bytes) return undefined;
+      try {
+        return await createImageBitmap(new Blob([new Uint8Array(bytes)]));
+      } catch {
+        return undefined; // wrong format or a damaged file
+      }
+    };
   }
 
   now(): number { return performance.now() - this.t0; }
@@ -120,7 +134,7 @@ export class Runtime implements HelperHost {
     this.controllerScreen.clearScreen();
 
     const env = createEnv({
-      screen: this.screen, lang, log: (t, k) => this.onLog(t, k ?? 'out'), sleep: (ms) => this.sleep(ms),
+      screen: this.screen, sdcard: this.sdcard, lang, log: (t, k) => this.onLog(t, k ?? 'out'), sleep: (ms) => this.sleep(ms),
       spawn: (f, a) => this.spawn(f, a), now: () => this.now(), requestStop: () => this.requestStop(), competition: this.competition,
       controller: this.controller, controllerScreen: this.controllerScreen, onDispose: (fn) => this.disposers.push(fn),
     });

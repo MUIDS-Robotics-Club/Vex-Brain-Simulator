@@ -30,6 +30,7 @@ Click the screen to touch it, so auto selectors and menus work too.
 - **Brain fonts and error lines.** Text is drawn with the Noto fonts the Brain uses, and runtime errors point at the line
   that caused them.
 - **Real project files.** Open a `.cpp`, `.hpp` or `.py` straight from your robot project, even one without `main()`.
+- **Simulated SD card.** Insert or eject a fake card, add or drop files from disk, and let `Brain.SDcard` save and load them without hardware. `drawImageFromFile` draws BMPs from the card. Files are kept in your browser.
 - **Live animation.** `wait()` really waits and `while (true)` loops keep running without freezing the page. **Stop** always works.
 - **Competition testing.** Programs that use `Competition` get **Autonomous** and **Driver control** buttons.
 - **Web or desktop.** The same code runs in the browser and as an Electron desktop app.

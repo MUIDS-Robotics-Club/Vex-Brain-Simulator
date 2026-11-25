@@ -6,6 +6,8 @@ import { SCREEN_H, SCREEN_W } from './sim/screen';
 import { highlight } from './highlight';
 import { Controls, PAD_ICON } from './controls';
 import { readShared, shareLink } from './share';
+import { SdCard } from './sim/sdcard';
+import { SdCardPanel } from './sdcard-ui';
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -44,13 +46,21 @@ function present(): void {
 }
 requestAnimationFrame(present);
 
-const rt = new Runtime(ctx);
-
 // ---------------------------------------------------------------- persistence (best effort)
 const store = {
   get(k: string): string | null { try { return localStorage.getItem(`vexsim.${k}`); } catch { return null; } },
   set(k: string, v: string): void { try { localStorage.setItem(`vexsim.${k}`, v); } catch { /* storage unavailable */ } },
 };
+
+const sdcard = SdCard.fromJSON(store.get('sdcard'));
+let cardSave: ReturnType<typeof setTimeout> | undefined;
+const persistCard = (): void => { cardSave = undefined; store.set('sdcard', JSON.stringify(sdcard.toJSON())); };
+// a logging loop can save on every iteration; don't serialize the whole card each time
+sdcard.onChange = () => {
+  if (cardSave !== undefined) clearTimeout(cardSave);
+  cardSave = setTimeout(persistCard, 300);
+};
+const rt = new Runtime(ctx, sdcard);
 
 // ---------------------------------------------------------------- editor: highlighting + line numbers
 let errLine = 0;
@@ -366,7 +376,10 @@ window.addEventListener('keydown', (e) => {
 // an error while the code is tucked away: the status bar says so, and clicking it reveals the terminal
 statusEl.addEventListener('click', () => { if (rt.state === 'error' && layout === 'preview') setLayout('split'); });
 
-window.addEventListener('beforeunload', () => rt.stop());
+window.addEventListener('beforeunload', () => {
+  if (cardSave !== undefined) { clearTimeout(cardSave); persistCard(); }
+  rt.stop();
+});
 
 // ---------------------------------------------------------------- startup
 codeEl.value = store.get('code') ?? STARTER_CODE;
@@ -401,6 +414,9 @@ const controls = new Controls({ input: rt.controller, load: () => store.get('key
 const controlsBtn = $<HTMLButtonElement>('controls');
 controlsBtn.insertAdjacentHTML('afterbegin', PAD_ICON);
 controlsBtn.addEventListener('click', () => controls.open());
+
+const sdPanel = new SdCardPanel(rt.sdcard);
+$<HTMLButtonElement>('sdcard').addEventListener('click', () => sdPanel.open());
 
 const ctrlLcd = $<HTMLPreElement>('ctrl-lcd');
 function setCtrlVisible(v: boolean): void {

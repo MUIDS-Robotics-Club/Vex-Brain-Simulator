@@ -19,6 +19,8 @@ export interface Ctx2D {
   stroke(): void;
   fillText(text: string, x: number, y: number): void;
   measureText(text: string): { width: number };
+  /** Optional so recording mocks do not need to implement image drawing. */
+  drawImage?(image: CanvasImageSource, x: number, y: number): void;
 }
 
 /** Marker for python keyword arguments passed to library functions. */
@@ -74,12 +76,15 @@ export class BrainScreen {
   touchX = 0;
   touchY = 0;
   private warnedFonts = new Set<string>();
+  private warnedImages = new Set<string>();
   private pressedCbs: unknown[] = [];
   private releasedCbs: unknown[] = [];
   /** Injected by the runtime: starts a user callback as its own concurrent task. */
   spawn: (fn: unknown, args?: unknown[]) => void = () => {};
   /** Injected: formats printf-style strings (shared with the C helpers). */
   sprintf: (fmt: string, args: unknown[]) => string = (f) => f;
+  /** Injected by the runtime: decodes an image from the SD card, or resolves undefined if it is missing. */
+  loadImage: (name: string) => Promise<CanvasImageSource | undefined> = async () => undefined;
   warn: (msg: string) => void = () => {};
 
   constructor(private ctx: Ctx2D) {
@@ -100,6 +105,7 @@ export class BrainScreen {
     this.pressedCbs = [];
     this.releasedCbs = [];
     this.warnedFonts.clear();
+    this.warnedImages.clear();
     this.fillAll(BLACK);
   }
 
@@ -210,8 +216,19 @@ export class BrainScreen {
     }
   }
 
-  drawImageFromFile(name: unknown): void {
-    this.warn(`drawImageFromFile("${String(name)}") is not supported in the simulator - images need an SD card`);
+  async drawImageFromFile(name: unknown, x: unknown, y: unknown): Promise<boolean> {
+    const [n, px, py] = bind([name, x, y], ['filename', 'x', 'y']);
+    const file = String(n);
+    const image = await this.loadImage(file);
+    if (!image || !this.ctx.drawImage) {
+      if (!this.warnedImages.has(file)) {
+        this.warnedImages.add(file);
+        this.warn(`drawImageFromFile("${file}"): no such image on the SD card. Add it with the SD card button, then run again.`);
+      }
+      return false;
+    }
+    this.ctx.drawImage(image, Number(px) + this.originX, Number(py) + this.originY);
+    return true;
   }
 
   // ---------------------------------------------------------------- text

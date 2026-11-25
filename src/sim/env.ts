@@ -2,9 +2,11 @@ import { BrainScreen, Kw, screenApi } from './screen';
 import { makeColorFactory } from './color';
 import { CBuf, PyDict, pystr, pyRepr, sortInPlace, sprintf, stub } from './helpers';
 import { ControllerInput, ControllerScreen, createController } from './controller';
+import { SdCard, toBytes } from './sdcard';
 
 export interface EnvHost {
   screen: BrainScreen;
+  sdcard: SdCard;
   lang: 'cpp' | 'py';
   log(text: string, kind?: 'out' | 'err' | 'warn' | 'info'): void;
   sleep(ms: number): Promise<void>;
@@ -60,7 +62,7 @@ export function createEnv(host: EnvHost): Env {
   const battery = {
     capacity: () => 100, voltage: () => 12.6, current: () => 0.5, temperature: () => 25,
   };
-  const sdcard = { isInserted: () => false, exists: () => false, loadfile: () => 0, savefile: () => 0 };
+  const sdcard = host.sdcard;
   const brainObj: Record<string, any> = {
     Screen: screen, screen, Timer: timer, timer, Battery: battery, battery, SDcard: sdcard, sdcard,
     ThreeWirePort: stub('ThreeWirePort'), three_wire_port: stub('ThreeWirePort'),
@@ -291,6 +293,8 @@ function installPython(g: Record<string, any>, host: EnvHost, out: (s: string) =
   };
   g.float = (x: unknown) => { const n = Number(x ?? 0); if (Number.isNaN(n)) throw new Error(`ValueError: could not convert string to float: ${pyRepr(x)}`); return n; };
   g.str = (x: unknown) => (x === undefined ? '' : pystr(x));
+  // VEX's python accepts a str here (plain python wants an encoding argument), so do the same
+  g.bytearray = (x: unknown) => toBytes(x);
   g.bool = (x: unknown) => !(x === null || x === undefined || x === false || x === 0 || x === '' || (Array.isArray(x) && !x.length));
   g.list = (x?: Iterable<unknown>) => (x === undefined ? [] : typeof x === 'string' ? Array.from(x) : x instanceof PyDict ? Object.keys(x) : Array.from(x));
   g.tuple = g.list;

@@ -19,7 +19,7 @@ const JS_RESERVED = new Set([
   'catch', 'finally', 'extends', 'null', 'undefined', 'NaN', 'Infinity', 'Object', 'Array', 'Math', 'String', 'Number', 'Promise',
 ]);
 // member calls whose result is an integer (used for C++ integer division)
-const INT_RESULT_METHODS = new Set(['xPosition', 'yPosition', 'size', 'length', 'time', 'row', 'column', 'capacity', 'getStringWidth', 'getStringHeight']);
+const INT_RESULT_METHODS = new Set(['xPosition', 'yPosition', 'size', 'filesize', 'length', 'time', 'row', 'column', 'capacity', 'getStringWidth', 'getStringHeight']);
 const ARITH = new Set(['+', '-', '*', '/', '%']);
 const OPERATOR_METHODS: Record<string, string> = {
   '==': 'eq', '!=': 'ne', '<': 'lt', '>': 'gt', '<=': 'le', '>=': 'ge', '+': 'add', '-': 'sub', '*': 'mul', '/': 'div',

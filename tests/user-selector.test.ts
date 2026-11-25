@@ -23,7 +23,7 @@ async function tap(rt: Runtime, x: number, y: number): Promise<void> {
   rt.screen.touchDown(x, y);
   await sleep(160);
   rt.screen.touchUp();
-  await sleep(120);
+  await sleep(160); // the selector ignores presses within 120 ms of the last release
 }
 
 describe('real-world auto selector (macros, operators, char buffers, static locals, missing headers)', () => {

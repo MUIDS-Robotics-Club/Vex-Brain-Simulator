@@ -286,6 +286,24 @@ kbd.dup { border-color: var(--amber); color: var(--amber); }
 .palette-foot kbd { min-width: 20px; height: 20px; padding: 0 5px; margin-right: 4px; font-size: 11px; line-height: 18px; }
 @media (max-width: 700px) { .palette-foot .dim { display: none; } }
 
+/* ---------------------------------------------------------------- SD card manager */
+.sd-panel { width: min(620px, 100%); }
+.sd-panel.dropping { border-color: var(--blue); }
+.sd-panel.dropping .sd-list { background: rgba(25, 118, 210, 0.1); }
+.sd-head { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px 0 20px; flex: none; }
+.sd-title { font-size: 14px; font-weight: 600; }
+.sd-status { font-size: 12px; color: var(--muted); }
+.sd-status.out { color: var(--amber); }
+.sd-list { flex: 1; min-height: 0; overflow-y: auto; }
+.sd-row { display: flex; align-items: center; gap: 10px; padding: 7px 20px; border-top: 1px solid #242424; font: 13px var(--mono); }
+.sd-row:hover { background: #222; }
+.sd-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sd-size { flex: none; width: 72px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sd-empty { padding: 28px 20px; color: var(--muted); text-align: center; }
+.sd-foot { display: flex; align-items: center; gap: 8px; padding: 12px 20px; flex: none; border-top: 1px solid #2a2a2a; white-space: nowrap; overflow: hidden; }
+.btn.danger:hover:not(:disabled) { background: var(--red); color: #fff; }
+@media (max-width: 700px) { .sd-foot .dim { display: none; } }
+
 /* ---------------------------------------------------------------- toast */
 .toast {
   position: fixed; left: 50%; bottom: 48px; transform: translateX(-50%); z-index: 60; max-width: calc(100vw - 32px);

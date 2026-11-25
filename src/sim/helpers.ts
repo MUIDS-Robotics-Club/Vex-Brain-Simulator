@@ -303,6 +303,7 @@ export function installPrototypes(): void {
   def(S, 'rfind', function (x) { return this.lastIndexOf(x); });
   def(S, 'count', function (x) { return x === '' ? this.length + 1 : this.split(x).length - 1; });
   def(S, 'index', function (x) { const i = this.indexOf(x); if (i < 0) throw new Error('ValueError: substring not found'); return i; });
+  def(Uint8Array.prototype, 'decode', function (encoding?: string) { return new TextDecoder(encoding).decode(this); });
 }
 
 // ------------------------------------------------------------------ helper table passed to generated code
